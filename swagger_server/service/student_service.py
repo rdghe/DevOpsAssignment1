@@ -1,41 +1,43 @@
 import os
-import tempfile
-from functools import reduce
 
-from tinydb import TinyDB, Query
+from pymongo import MongoClient
 
-db_dir_path = tempfile.gettempdir()
-db_file_path = os.path.join(db_dir_path, "students.json")
-student_db = TinyDB(db_file_path)
+mongodb_client = MongoClient(os.getenv('MONGO_URI', 'mongodb://mongo:27017/'))
+students_db = mongodb_client.student_database
+students = students_db.students
 
 
 def add(student=None):
-    queries = []
-    query = Query()
-    queries.append(query.first_name == student.first_name)
-    queries.append(query.last_name == student.last_name)
-    query = reduce(lambda a, b: a & b, queries)
-    res = student_db.search(query)
-    if res:
+    # Check if student already exists
+    if list(students.find({'$or': [
+        {'student_id': student.student_id},
+        {'first_name': student.first_name},
+        {'last_name': student.last_name}
+    ]})):
         return 'already exists', 409
 
-    doc_id = student_db.insert(student.to_dict())
-    student.student_id = doc_id
+    # Insert student into MongoDB collection
+    students.insert_one(student.to_dict())
     return student.student_id
 
 
 def get_by_id(student_id=None, subject=None):
-    student = student_db.get(doc_id=int(student_id))
+    # Find student in MongoDB collection
+    student = students.find_one({'student_id': student_id})
     if not student:
         return 'not found', 404
-    student['student_id'] = student_id
-    print(student)
-    return student
+
+    # Return student, without exposing the internal MongoDB `_id` field
+    return {key: student[key] for key in student.keys() if key != '_id'}
 
 
 def delete(student_id=None):
-    student = student_db.get(doc_id=int(student_id))
+    # Find student in MongoDB collection
+    student = students.find_one({'student_id': student_id})
     if not student:
         return 'not found', 404
-    student_db.remove(doc_ids=[int(student_id)])
-    return student_id
+
+    # Delete student from MongoDB collection
+    students.delete_one({'student_id': student_id})
+    # Return no content and HTTP 204
+    return None, 204
