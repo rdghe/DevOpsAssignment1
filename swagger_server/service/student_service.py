@@ -38,4 +38,4 @@ def delete(student_id=None):
     if not student:
         return 'not found', 404
     student_db.remove(doc_ids=[int(student_id)])
-    return student_id
+    return student_id, 204
