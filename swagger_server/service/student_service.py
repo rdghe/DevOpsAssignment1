@@ -1,44 +1,41 @@
 import os
+import tempfile
 from functools import reduce
 
-from pymongo import MongoClient
+from tinydb import TinyDB, Query
 
-mongodb_client = MongoClient(os.getenv('MONGO_URI', 'mongodb://mongo:27017/'))
-students_db = mongodb_client.student_database
-students = students_db.students
+db_dir_path = tempfile.gettempdir()
+db_file_path = os.path.join(db_dir_path, "students.json")
+student_db = TinyDB(db_file_path)
 
 
 def add(student=None):
-    # Check if student already exists
-    if list(students.find({'$or': [
-        {'student_id': student.student_id},
-        {'first_name': student.first_name},
-        {'last_name': student.last_name}
-    ]})):
+    queries = []
+    query = Query()
+    queries.append(query.first_name == student.first_name)
+    queries.append(query.last_name == student.last_name)
+    query = reduce(lambda a, b: a & b, queries)
+    res = student_db.search(query)
+    if res:
         return 'already exists', 409
 
-    # Insert student into MongoDB collection
-    students.insert_one(student.to_dict())
+    doc_id = student_db.insert(student.to_dict())
+    student.student_id = doc_id
     return student.student_id
 
 
 def get_by_id(student_id=None, subject=None):
-    # Find student in MongoDB collection
-    student = students.find_one({'student_id': student_id})
+    student = student_db.get(doc_id=int(student_id))
     if not student:
         return 'not found', 404
-
-    # Return student, without exposing the internal MongoDB `_id` field
-    return {key: student[key] for key in student.keys() if key != '_id'}
+    student['student_id'] = student_id
+    print(student)
+    return student
 
 
 def delete(student_id=None):
-    # Find student in MongoDB collection
-    student = students.find_one({'student_id': student_id})
+    student = student_db.get(doc_id=int(student_id))
     if not student:
         return 'not found', 404
-
-    # Delete student from MongoDB collection
-    students.delete_one({'student_id': student_id})
-    # Return no content and HTTP 204
-    return None, 204
+    student_db.remove(doc_ids=[int(student_id)])
+    return student_id
