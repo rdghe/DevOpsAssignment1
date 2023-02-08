@@ -118,7 +118,6 @@ components:
           items:
             $ref: '#/components/schemas/GradeRecord'
       example:
-        student_id: 0
         last_name: Smith
         first_name: John
         gradeRecords:
