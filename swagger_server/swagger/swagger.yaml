@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: Simple Inventory API
+  title: Simple Students API for managing students
   description: This is a simple API
   contact:
     email: radu98@gmail.com
@@ -21,7 +21,7 @@ paths:
       parameters:
       - name: student_id
         in: path
-        description: the uid
+        description: the id of the student
         required: true
         style: simple
         explode: false
@@ -47,7 +47,7 @@ paths:
       parameters:
       - name: student_id
         in: path
-        description: the uid
+        description: the id of the student
         required: true
         style: simple
         explode: false
@@ -93,12 +93,13 @@ components:
       required:
       - first_name
       - last_name
+      - student_id
       type: object
       properties:
         student_id:
           type: number
-          format: int64
-          example: 1
+          format: integer
+          example: 0
         first_name:
           type: string
           example: John
@@ -113,7 +114,7 @@ components:
           items:
             $ref: '#/components/schemas/GradeRecord'
       example:
-        student_id: 1
+        student_id: 0
         last_name: Smith
         first_name: John
         gradeRecords:
