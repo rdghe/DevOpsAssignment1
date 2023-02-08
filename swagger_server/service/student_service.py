@@ -40,4 +40,4 @@ def delete(student_id=None):
     # Delete student from MongoDB collection
     students.delete_one({'student_id': student_id})
     # Return no content and HTTP 204
-    return None, 204
+    return student_id
