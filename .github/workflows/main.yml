@@ -3,7 +3,6 @@ on: [push]
 env:
   IMAGE_NAME: student_service
   REPO_NAME: scorpion0206
-  MONGO_URI: mongodb://172.17.0.2:27017
 
 jobs:
   build:
