@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 services:
   student_service:
     image: scorpion0206/student_service
