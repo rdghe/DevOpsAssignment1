@@ -54,7 +54,7 @@ paths:
         schema:
           type: number
           format: integer
-      responses:
+      responses:  
         "200":
           description: successful operation
           content:
