@@ -1,7 +1,7 @@
-version: '3'
+version: '3.8'
 services:
   student_service:
-    image: devopsassignment1/student_service
+    image: scorpion0206/student_service
     restart: unless-stopped
     depends_on:
       - mongo
@@ -13,5 +13,6 @@ services:
   mongo:
     restart: unless-stopped
     image: mongo:4
+    hostname: mongo
     ports:
       - "27017:27017"

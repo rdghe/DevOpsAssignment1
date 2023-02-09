@@ -1,5 +1,4 @@
 import os
-from functools import reduce
 
 from pymongo import MongoClient
 
@@ -9,17 +8,23 @@ students = students_db.students
 
 
 def add(student=None):
+    # Generate auto-incremental student_id
+    # This is a naive implementation, and will not work in a distributed environment
+    # But I could not find another way to make the podman tests succeed
+    student_id = students.count_documents({}) + 1
+
     # Check if student already exists
-    if list(students.find({'$or': [
-        {'student_id': student.student_id},
+    if students.count_documents({'$or': [
         {'first_name': student.first_name},
         {'last_name': student.last_name}
-    ]})):
+    ]}):
         return 'already exists', 409
 
+    student_dict = student.to_dict()
+    student_dict.update({'student_id': student_id})
     # Insert student into MongoDB collection
-    students.insert_one(student.to_dict())
-    return student.student_id
+    students.insert_one(student_dict)
+    return student_id
 
 
 def get_by_id(student_id=None, subject=None):
@@ -40,5 +45,4 @@ def delete(student_id=None):
 
     # Delete student from MongoDB collection
     students.delete_one({'student_id': student_id})
-    # Return no content and HTTP 204
-    return None, 204
+    return student_id
