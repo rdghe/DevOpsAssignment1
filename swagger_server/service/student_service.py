@@ -1,6 +1,8 @@
+import os
+
 from pymongo import MongoClient
 
-mongodb_client = MongoClient('mongodb://mongo:27017/')
+mongodb_client = MongoClient(os.getenv('MONGO_URI', 'mongodb://mongo:27017/'))
 students_db = mongodb_client.student_database
 students = students_db.students
 
