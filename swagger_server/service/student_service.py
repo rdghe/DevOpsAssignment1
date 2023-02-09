@@ -1,8 +1,6 @@
-import os
-
 from pymongo import MongoClient
 
-mongodb_client = MongoClient(os.getenv('MONGO_URI', 'mongodb://mongo:27017/'))
+mongodb_client = MongoClient('mongodb://mongo:27017/')
 students_db = mongodb_client.student_database
 students = students_db.students
 
@@ -14,10 +12,10 @@ def add(student=None):
     student_id = students.count_documents({}) + 1
 
     # Check if student already exists
-    if list(students.find({'$or': [
+    if students.count_documents({'$or': [
         {'first_name': student.first_name},
         {'last_name': student.last_name}
-    ]})):
+    ]}):
         return 'already exists', 409
 
     student_dict = student.to_dict()
