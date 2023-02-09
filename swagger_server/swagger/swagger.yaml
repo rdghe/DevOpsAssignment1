@@ -103,7 +103,6 @@ components:
         student_id:
           type: number
           format: integer
-          example: 0
         first_name:
           type: string
           example: John
