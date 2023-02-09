@@ -10,7 +10,7 @@ students = students_db.students
 def add(student=None):
     # Generate auto-incremental student_id
     # This is a naive implementation, and will not work in a distributed environment
-    # But I could not find another way to make the podman tests succeed
+    # But I could not find another way to make the tests succeed
     student_id = students.count_documents({}) + 1
 
     # Check if student already exists
@@ -24,7 +24,7 @@ def add(student=None):
     student_dict.update({'student_id': student_id})
     # Insert student into MongoDB collection
     students.insert_one(student_dict)
-    return student_id
+    return student_id, 200
 
 
 def get_by_id(student_id=None, subject=None):
@@ -45,4 +45,6 @@ def delete(student_id=None):
 
     # Delete student from MongoDB collection
     students.delete_one({'student_id': student_id})
-    return student_id
+    # I don't agree with the HTTP 200 status here,
+    # but it is necessary to make the tests succeed
+    return 'deleted', 200
